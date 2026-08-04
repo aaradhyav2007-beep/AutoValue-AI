@@ -7,6 +7,7 @@ client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def analyze_car(
     age,
+    model,
     mileage,
     original_price,
     predicted_price,
@@ -20,6 +21,9 @@ def analyze_car(
 
     Age:
     {age} years
+
+    Model:
+    {model}
 
     Mileage:
     {mileage} km
