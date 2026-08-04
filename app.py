@@ -267,6 +267,7 @@ def inject_css() -> None:
         unsafe_allow_html=True,
     )
 
+
 # --------------------------------------------------------------------------
 # Cached loaders
 # --------------------------------------------------------------------------
@@ -279,6 +280,7 @@ def load_pipeline():
 @st.cache_data(show_spinner=False)
 def load_reference_data() -> pd.DataFrame:
     return pd.read_csv(DATA_PATH)
+
 
 # --------------------------------------------------------------------------
 # UI sections
@@ -318,6 +320,7 @@ def render_hero_image() -> None:
         """,
         unsafe_allow_html=True,
     )
+
 
 def render_vehicle_form(df: pd.DataFrame) -> dict:
     """Collect vehicle details and return them as a plain dict."""
@@ -363,6 +366,7 @@ def render_vehicle_form(df: pd.DataFrame) -> dict:
         "analyze": analyze,
     }
 
+
 # --------------------------------------------------------------------------
 # Prediction & analysis
 # --------------------------------------------------------------------------
@@ -383,6 +387,7 @@ def predict_price(pipeline, details: dict) -> float:
 
     return float(pipeline.predict(row)[0])
 
+
 def render_prediction(estimated_price: float) -> None:
     st.markdown("### 📊 Prediction")
     # Was: a hand-rolled div mimicking Streamlit's stMetric with inline
@@ -390,6 +395,7 @@ def render_prediction(estimated_price: float) -> None:
     # for the real widget and bypasses Streamlit's own theming. Use the
     # actual widget instead.
     st.metric(label="Estimated Market Price (USD)", value=f"${estimated_price:,.2f}")
+
 
 def render_deal_analysis(estimated_price: float, seller_price: float) -> None:
     if seller_price <= 0:
@@ -414,6 +420,7 @@ def render_deal_analysis(estimated_price: float, seller_price: float) -> None:
     else:
         st.error("Overpriced. Consider negotiating.")
 
+
 def render_depreciation_summary(original_price: float, estimated_price: float) -> float:
     st.markdown("### 📉 Depreciation Summary")
     value_lost = original_price - estimated_price
@@ -425,6 +432,7 @@ def render_depreciation_summary(original_price: float, estimated_price: float) -
     st.write(f"Depreciation: {depreciation:.2f}%")
 
     return depreciation
+
 
 def render_ai_analysis(details: dict, estimated_price: float, depreciation: float) -> None:
     with st.spinner("Getting AI recommendation..."):
@@ -440,10 +448,16 @@ def render_ai_analysis(details: dict, estimated_price: float, depreciation: floa
 
     st.divider()
     st.markdown("### 🤖 AI Vehicle Analysis")
+    # Streamlit's markdown renderer treats a pair of "$" as LaTeX math
+    # delimiters. The AI response is full of dollar amounts (e.g. "$0.00 ...
+    # $22,691.82"), which was getting parsed as an equation and rendered in
+    # italic math font instead of plain text. Escape every "$" first.
+    safe_response = ai_response.replace("$", "&#36;")
     st.markdown(
-        f"<div class=\"ai-analysis-section\"><p>{ai_response}</p></div>",
+        f"<div class=\"ai-analysis-section\"><p>{safe_response}</p></div>",
         unsafe_allow_html=True,
     )
+
 
 # --------------------------------------------------------------------------
 # Main
@@ -478,6 +492,7 @@ def main() -> None:
         st.divider()
         st.markdown("### 🤖 AI Vehicle Analysis")
         st.error(f"AI analysis is currently unavailable: {exc}")
+
 
 if __name__ == "__main__":
     main()

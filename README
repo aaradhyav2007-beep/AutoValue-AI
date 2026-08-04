@@ -1,0 +1,88 @@
+# AutoValue AI
+
+**AI-powered used car valuation platform.** Enter a vehicle's details and get an instant, ML-based market value estimate, a deal analysis against a seller's asking price, a depreciation summary, and a plain-English AI recommendation.
+
+Built with **Streamlit**, a **scikit-learn** regression pipeline, and **Google Gemini** for natural-language analysis.
+
+## Features
+
+- 📊 **Price prediction** — a trained pipeline (`OneHotEncoder → PolynomialFeatures → LinearRegression`) estimates fair market value from brand, model, car type, transmission, fuel type, age, ownership history, and mileage.
+- 💰 **Deal analysis** — compares the estimated value against a seller's asking price and flags whether it's a great deal, fair price, or overpriced.
+- 📉 **Depreciation summary** — shows value lost and depreciation % versus the original purchase price.
+- 🤖 **AI recommendation** — sends the vehicle's stats to Gemini and returns a structured recommendation (decision, pros, cons, negotiation tip).
+- 🎨 Polished, responsive Streamlit UI with custom styling.
+
+## Project Structure
+
+```
+Car Price Depreciation Predictor/
+├── app.py                    # Streamlit front-end and main app logic
+├── ai_analysis.py            # Gemini API integration for AI recommendations
+├── polynomial_graph.py       # Standalone script to visualize the polynomial regression fit
+├── eda.ipynb                 # Exploratory data analysis / model training notebook
+├── car_data.csv              # Training / reference dataset
+├── car_price_pipeline.pkl    # Pre-trained sklearn pipeline (encoder + poly features + regression)
+├── .env                      # API keys (not committed — see Setup)
+└── .gitignore
+```
+
+## Prerequisites
+
+- Python 3.10+
+- A [Google Gemini API key](https://ai.google.dev/) for the AI recommendation feature
+
+## Setup
+
+1. **Clone the repo and enter the project folder:**
+
+   ```bash
+   git clone <your-repo-url>
+   cd "Car Price Depreciation Predictor"
+   ```
+
+2. **Create a virtual environment and install dependencies:**
+
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   pip install streamlit pandas scikit-learn joblib matplotlib numpy google-genai python-dotenv
+   ```
+
+   > Consider adding a `requirements.txt` to pin these versions.
+
+3. **Set your API key.** Create a `.env` file in the project root:
+
+   ```env
+   GEMINI_API_KEY=your_gemini_api_key_here
+   ```
+
+   ⚠️ Never commit `.env` — it's already listed in `.gitignore`. If a key has ever been shared or committed by mistake, rotate it in [Google AI Studio](https://aistudio.google.com/) immediately.
+
+4. **Run the app:**
+
+   ```bash
+   streamlit run app.py
+   ```
+
+   The app will open at `http://localhost:8501`.
+
+## How It Works
+
+1. **Input** — The sidebar/form collects: brand, model, car type, transmission, fuel type, age, number of previous owners, mileage, original purchase price, and (optionally) a seller's asking price.
+2. **Prediction** — `car_price_pipeline.pkl` (a pre-trained sklearn pipeline) predicts the estimated current market value from those features.
+3. **Deal analysis** — If an asking price is provided, the app compares it to the prediction and labels the deal (great / fair / overpriced).
+4. **Depreciation** — Calculates value lost and depreciation % relative to the original price.
+5. **AI analysis** — `ai_analysis.py` sends the vehicle stats to Gemini (`gemini-2.5-flash`) and renders a structured recommendation in the UI.
+
+## Retraining the Model
+
+The regression pipeline was trained on `car_data.csv` (columns: `Brand`, `Model`, `Car_Type`, `Year`, `Age_Years`, `Transmission`, `Fuel_Type`, `No_of_Owners`, `KM_Driven`, `Price_USD`). See `eda.ipynb` for the full exploratory analysis and training steps, and `polynomial_graph.py` for a standalone visualization of the age-vs-price polynomial fit. To retrain, update the notebook with new data and re-export the pipeline to `car_price_pipeline.pkl`.
+
+## Notes
+
+- `polynomial_graph.py` currently references `car_price.csv` — update this to `car_data.csv` (the actual dataset filename) before running it standalone.
+- The AI analysis step fails gracefully in the UI if the Gemini API key is missing or invalid.
+
+## License
+
+> _Add your license here (e.g., MIT, Apache 2.0)._

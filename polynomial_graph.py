@@ -5,10 +5,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 
 
-data = pd.read_csv('car_price.csv')
+data = pd.read_csv('car_data.csv')
  # Load your dataset here
 X = data[["Age_Years"]]
-y = data["Current_Price_USD"]
+y = data["Price_USD"]
 poly_features = PolynomialFeatures(degree=2, include_bias=False)
 X_poly = poly_features.fit_transform(X)
 reg = LinearRegression()
